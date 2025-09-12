@@ -1,5 +1,6 @@
 import argparse
 import os
+import sys
 from . import data
 
 def parse_args():
@@ -7,7 +8,7 @@ def parse_args():
   parser = argparse.ArgumentParser()
 
   #this allowsus to have multiple commands like init, commit, etc
-  commands = parser.add_subparsers(dest="command") #the chosen command wil be stored in args.command
+  commands = parser.add_subparsers(dest="command") #the chosen command will be stored in args.command
   commands.required = True
 
   # Create a parser for the "init" command
@@ -20,6 +21,10 @@ def parse_args():
   hash_object_parser.set_defaults(func=hash_object)
   hash_object_parser.add_argument("file")
 
+  cat_file_parser = commands.add_parser("cat-file")
+  cat_file_parser.set_defaults(func=cat_file)
+  cat_file_parser.add_argument("object")
+
   return parser.parse_args()
 
 def init(args):
@@ -28,7 +33,17 @@ def init(args):
 
 def hash_object(args):
   with open(args.file, "rb") as f:
-    print(data.hash_object (f.read()))
+    print(data.hash_object(f.read()))
+
+def cat_file(args):
+  # Flush any pending text output before we start writing binary data.
+  # This prevents any mix-up between regular printed text and raw bytes.
+  sys.stdout.flush()
+
+  # Write the object's raw bytes directly to stdout's binary buffer.
+  # Using .buffer ensures we don't accidentally try to decode the bytes as text.
+  # This way, the exact contents of the stored object are output as-is.
+  sys.stdout.buffer.write(data.get_object(args.object))
   
 
 def main():

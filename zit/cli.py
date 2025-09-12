@@ -7,7 +7,7 @@ def parse_args():
   # Create the main argument parser
   parser = argparse.ArgumentParser()
 
-  #this allowsus to have multiple commands like init, commit, etc
+  #this allows us to have multiple commands like init, commit, etc
   commands = parser.add_subparsers(dest="command") #the chosen command will be stored in args.command
   commands.required = True
 
@@ -43,7 +43,7 @@ def cat_file(args):
   # Write the object's raw bytes directly to stdout's binary buffer.
   # Using .buffer ensures we don't accidentally try to decode the bytes as text.
   # This way, the exact contents of the stored object are output as-is.
-  sys.stdout.buffer.write(data.get_object(args.object))
+  sys.stdout.buffer.write(data.get_object(args.object, expected=None))
   
 
 def main():

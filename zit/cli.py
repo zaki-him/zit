@@ -2,6 +2,7 @@ import argparse
 import os
 import sys
 from . import data
+from . import base
 
 def parse_args():
   # Create the main argument parser
@@ -25,6 +26,9 @@ def parse_args():
   cat_file_parser.set_defaults(func=cat_file)
   cat_file_parser.add_argument("object")
 
+  write_tree_parser = commands.add_parser("write-tree")
+  write_tree_parser.set_defaults(func=write_tree)
+
   return parser.parse_args()
 
 def init(args):
@@ -45,6 +49,8 @@ def cat_file(args):
   # This way, the exact contents of the stored object are output as-is.
   sys.stdout.buffer.write(data.get_object(args.object, expected=None))
   
+def write_tree(args):
+  base.write_tree()
 
 def main():
   # Call the parse_args() function to process command-line input

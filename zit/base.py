@@ -38,4 +38,21 @@ def write_tree(directory = '.'):
   tree = ''.join (f'{type_} {object_id} {name}\n'
                      for name, object_id, type_
                      in sorted (entries))
+  
+  # Hash the tree content and store it as a 'tree' object
   return data.hash_object (tree.encode (), 'tree')
+
+
+def _iter_tree_entries(object_id):
+  if not object_id:
+    return
+  tree = data.get_object(object_id, 'tree')
+  for entry in tree.decode().splitlines():
+    type_, object_id, name = entry.split(' ', 2)
+
+    # Yield this entry as a tuple (type, object_id, name).
+    # Using 'yield' turns this function into a generator:
+    # - It returns one entry at a time instead of building a full list.
+    # - The function pauses here and resumes on the next iteration.
+    yield type_, object_id, name
+

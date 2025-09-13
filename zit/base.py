@@ -46,8 +46,8 @@ def write_tree(directory = '.'):
 def _iter_tree_entries(object_id):
   if not object_id:
     return
-  tree = data.get_object(object_id, 'tree')
-  for entry in tree.decode().splitlines():
+  tree = data.get_object(object_id, 'tree') # we get something like this: b'blob a3f1... file1.txt\nblob 7c2d... file2.txt\ntree b72e... src\n'
+  for entry in tree.decode().splitlines(): # this will make it like this: ["blob a3f1... file1.txt", "blob 7c2d... file2.txt", "tree b72e... src"]
     type_, object_id, name = entry.split(' ', 2)
 
     # Yield this entry as a tuple (type, object_id, name).
@@ -56,3 +56,25 @@ def _iter_tree_entries(object_id):
     # - The function pauses here and resumes on the next iteration.
     yield type_, object_id, name
 
+def get_tree(object_id, base_path=''):
+  results = {}
+  for type_, entry_object_id, name in _iter_tree_entries(object_id):
+    assert '/' not in name # No slashes allowed in a single tree entry name
+    assert name not in ('..', '.') # Disallow parent/current directory references
+
+    path = base_path + name
+    if type_ == 'blob':
+      results[path] = entry_object_id
+    elif type_ == 'tree':
+      results.update(get_tree(entry_object_id, f'{path}/'))
+    else:
+      # If we encounter an unknown object type, stop execution
+      assert False, f'Unknown tree entry {type_}'
+  
+  return results
+
+def read_tree(tree_oid):
+  for path, entry_object_id in get_tree(tree_oid, base_path='./').items():
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, 'wb') as f:
+      f.write(data.get_object(entry_object_id))

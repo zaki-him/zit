@@ -1,5 +1,6 @@
 from . import data
 import os
+from datetime import date , datetime
 
 def is_ignored(path):
   return '.zit' in path.split('/')
@@ -95,3 +96,27 @@ def read_tree(tree_oid):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, 'wb') as f:
       f.write(data.get_object(entry_object_id))
+
+
+def commit(message):
+  day = date.today()
+  time = datetime.now()
+  time_str = time.strftime("%H:%M:%S")
+
+  commit = f'commit {write_tree()}'
+  commit += '\n'
+
+  HEAD = data.get_HEAD()
+
+  if HEAD:
+    commit += f'parent {HEAD}\n'
+
+  commit += f'{time_str} {day}'
+  commit += '\n'
+  commit += f'{message}'
+
+  object_id = data.hash_object(commit.encode(), 'commit')
+
+  data.set_HEAD(object_id)
+
+  return object_id

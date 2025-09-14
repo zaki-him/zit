@@ -30,3 +30,12 @@ def get_object(object_id, expected='blob'):
   if expected is not None:
     assert type_ == expected, f'Expected {expected}, got {type_}'
   return content
+
+def set_HEAD(object_id):
+  with open(f'{ZIT_DIR}/HEAD', 'w') as f:
+    f.write(object_id)
+
+def get_HEAD():
+  if os.path.isfile(f'{ZIT_DIR}/HEAD'):
+    with open(f'{ZIT_DIR}/HEAD') as f:
+      return f.read().strip()

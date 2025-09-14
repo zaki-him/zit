@@ -8,7 +8,7 @@ def parse_args():
   # Create the main argument parser
   parser = argparse.ArgumentParser()
 
-  #this allows us to have multiple commands like init, commit, etc
+  #This allows us to have multiple commands like init, commit, etc
   commands = parser.add_subparsers(dest="command") #the chosen command will be stored in args.command
   commands.required = True
 

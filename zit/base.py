@@ -73,7 +73,24 @@ def get_tree(object_id, base_path=''):
   
   return results
 
+def _empty_current_dir():
+  for root, dirs, files in os.walk('.',topdown=True): # yields tuple (root, dirs, files)
+    for filename in files:
+      path = os.path.relpath(f'{root}/{filename}')
+      if is_ignored(path) or not os.path.isfile(path): # safety check
+        continue
+      os.remove(path)
+    for directory in dirs:
+      path = os.path.relpath(f'{root}/{directory}')
+      if is_ignored(path):
+        continue
+      try:
+        os.rmdir(path)
+      except(FileNotFoundError, OSError):
+        pass
+
 def read_tree(tree_oid):
+  _empty_current_dir()
   for path, entry_object_id in get_tree(tree_oid, base_path='./').items():
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, 'wb') as f:

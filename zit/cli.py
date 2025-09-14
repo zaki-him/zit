@@ -37,7 +37,7 @@ def parse_args():
 
 def init(args):
   data.init()
-  print(f'Initialized empty zit repository in {os.getcwd()}\{data.ZIT_DIR}')
+  print(f'Initialized empty zit repository in {os.getcwd()}\\{data.ZIT_DIR}')
 
 def hash_object(args):
   with open(args.file, "rb") as f:

@@ -1,6 +1,9 @@
 from . import data
 import os
 from datetime import date , datetime
+from collections import namedtuple
+import operator
+import itertools
 
 def is_ignored(path):
   return '.zit' in path.split('/')
@@ -120,3 +123,23 @@ def commit(message):
   data.set_HEAD(object_id)
 
   return object_id
+
+Commit = namedtuple('Commit', ['tree', 'parent', 'message'])
+
+def get_commit(object_id):
+  parent = None
+
+  commit = data.get_object(object_id, 'commit').decode()
+  lines = iter(commit.splitlines())
+  for line in itertools.takewhile(operator.truth, lines):
+    key, value = line.split(' ', 1)
+    if key == 'tree':
+      tree = value
+    elif key == 'parent':
+      parent = value
+    else:
+      assert False, f'Unknown field {key}'
+
+  message = ''.join(lines)
+  return Commit(tree=tree, parent=parent, message=message)
+
